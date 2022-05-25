@@ -52,8 +52,6 @@ contract Campaign {
         request.description = description;
         request.value = value;
         request.recipient = recipient;
-        request.complete = false;
-        request.approvalsCount = 0;
     }
 
     function approveRequest(uint index) public {
