@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "compile": "node ./ethereum/compile.js",
+    "ethtest": "mocha ./ethereum/test"
+  },
   "dependencies": {
     "fs-extra": "^10.1.0",
     "ganache-cli": "^6.12.2",
