@@ -28,7 +28,7 @@ contract Campaign {
     uint contributorsCount;
     mapping(address => bool) public contributors;
     uint requestsCount;
-    mapping (uint => Request) requests;
+    mapping (uint => Request) public requests;
 
     modifier restricted() {
         require(msg.sender == manager);
