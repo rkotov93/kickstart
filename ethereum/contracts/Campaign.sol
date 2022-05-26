@@ -62,6 +62,11 @@ contract Campaign {
         request.approvalsCount++;
     }
 
+    function isRequestApprovedByMe(uint index) public view returns (bool) {
+        Request storage request = requests[index];
+        return request.approvers[msg.sender];
+    }
+
     function completeRequest(uint index) public restricted {
         Request storage request = requests[index];
         require(!request.complete);
