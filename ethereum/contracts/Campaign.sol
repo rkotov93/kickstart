@@ -68,6 +68,8 @@ contract Campaign {
     }
 
     function completeRequest(uint index) public restricted {
+        require(contributorsCount > 0);
+
         Request storage request = requests[index];
         require(!request.complete);
         require(request.approvalsCount * 100 / contributorsCount > 65);
