@@ -5,9 +5,11 @@
   "license": "MIT",
   "scripts": {
     "compile": "node ./ethereum/compile.js",
+    "deploy": "node ./ethereum/deploy.js",
     "test": "mocha ./test"
   },
   "dependencies": {
+    "@truffle/hdwallet-provider": "^2.0.8",
     "fs-extra": "^10.1.0",
     "ganache-cli": "^6.12.2",
     "solc": "^0.8.14-fixed",
@@ -16,6 +18,7 @@
   "devDependencies": {
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
+    "dotenv": "^16.0.1",
     "expect.js": "^0.3.1",
     "mocha": "^10.0.0"
   }
