@@ -11,7 +11,7 @@
   "dependencies": {
     "@truffle/hdwallet-provider": "^2.0.8",
     "fs-extra": "^10.1.0",
-    "ganache-cli": "^6.12.2",
+    "ganache": "^7.2.0",
     "solc": "^0.8.14-fixed",
     "web3": "^1.7.3"
   },

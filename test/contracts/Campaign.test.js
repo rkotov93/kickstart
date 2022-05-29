@@ -1,13 +1,17 @@
 const chai = require('chai')
-const { expect, assert } = chai
+const { assert } = chai
 chai.use(require('chai-as-promised'))
-const ganache = require('ganache-cli')
+const ganache = require('ganache')
 const Web3 = require('web3')
-const web3 = new Web3(ganache.provider())
+const web3 = new Web3(ganache.provider({
+  logging: {
+    logger: {
+      log: () => {} // don't do anything
+    }
+  }
+}))
 
 const campaignContract = require('../../ethereum/build/Campaign.json')
-
-const VM_EXCEPTION_MESSAGE = 'VM Exception while processing transaction: revert'
 
 describe('Campaign Contract', () => {
   let accounts
@@ -32,6 +36,7 @@ describe('Campaign Contract', () => {
   }
 
   beforeEach(async () => {
+    web3.eth.handleRevert = true
     accounts = await web3.eth.getAccounts()
     campaign = await new web3.eth.Contract(campaignContract.abi)
       .deploy({
@@ -59,8 +64,12 @@ describe('Campaign Contract', () => {
 
     context('when value is less than minimum contribution', () => {
       it('raises an error', async () => {
-        await expect(contribute(accounts[1], '99'))
-          .to.be.rejectedWith(Error, VM_EXCEPTION_MESSAGE)
+        try {
+          await contribute(accounts[1], '99')
+          assert.ok(false)
+        } catch (error) {
+          assert.equal(error.reason, 'Contribution should be more than minimun value')
+        }
       })
     })
   })
@@ -68,8 +77,12 @@ describe('Campaign Contract', () => {
   describe('#createRequest', () => {
     context('when sender is not a manager', () => {
       it('raises an error', async () => {
-        await expect(createRequest(accounts[1], accounts[2]))
-          .to.be.rejectedWith(Error, VM_EXCEPTION_MESSAGE)
+        try {
+          await createRequest(accounts[1], accounts[2])
+          assert.ok(false)
+        } catch (error) {
+          assert.equal(error.reason, 'This method can be called by manager only')
+        }
       })
     })
 
@@ -95,8 +108,12 @@ describe('Campaign Contract', () => {
 
     context('when approver is not a contributor', () => {
       it('raises an error', async () => {
-        await expect(approveRequest(accounts[3]))
-          .to.be.rejectedWith(Error, VM_EXCEPTION_MESSAGE)
+        try {
+          await approveRequest(accounts[3])
+          assert.ok(false)
+        } catch (error) {
+          assert.equal(error.reason, 'Only contributors can approve requests')
+        }
       })
     })
 
@@ -107,8 +124,12 @@ describe('Campaign Contract', () => {
 
       context('when request was already approved by approver', () => {
         it('raises an error', async () => {
-          await expect(approveRequest(accounts[1]))
-            .to.be.rejectedWith(Error, VM_EXCEPTION_MESSAGE)
+          try {
+            await approveRequest(accounts[1])
+            assert.ok(false)
+          } catch (error) {
+            assert.equal(error.reason, 'This request was already approved by this contributor')
+          }
         })
       })
 
@@ -127,15 +148,39 @@ describe('Campaign Contract', () => {
 
     context('when sender is not a manager', () => {
       it('raises an error', async () => {
-        expect(completeRequest(accounts[1]))
-          .to.be.rejectedWith(Error, VM_EXCEPTION_MESSAGE)
+        try {
+          await completeRequest(accounts[1])
+          assert.ok(false)
+        } catch (error) {
+          assert.equal(error.reason, 'This method can be called by manager only')
+        }
       })
     })
 
     context('when there are no contributors', () => {
       it('raises an error', async () => {
-        await expect(completeRequest(accounts[0]))
-          .to.be.rejectedWith(Error, VM_EXCEPTION_MESSAGE)
+        try {
+          await completeRequest(accounts[0])
+          assert.ok(false)
+        } catch (error) {
+          assert(error.reason, 'Request cannot be completed without contributors')
+        }
+      })
+    })
+
+    context("when contract's balance is less than request value", () => {
+      beforeEach(async () => {
+        await contribute(accounts[2], web3.utils.toWei('500', 'Finney'))
+        await approveRequest(accounts[2])
+      })
+
+      it('raises an error', async () => {
+        try {
+          await completeRequest(accounts[0])
+          assert.ok(false)
+        } catch (error) {
+          assert.equal(error.reason, 'Not enough contributions to complete this request')
+        }
       })
     })
 
@@ -147,8 +192,12 @@ describe('Campaign Contract', () => {
       })
 
       it('raises an error', async () => {
-        await expect(completeRequest(accounts[0]))
-          .to.be.rejectedWith(Error, VM_EXCEPTION_MESSAGE)
+        try {
+          await completeRequest(accounts[0])
+          assert.ok(false)
+        } catch (error) {
+          assert.equal(error.reason, 'Request was already complete')
+        }
       })
     })
 
@@ -160,8 +209,12 @@ describe('Campaign Contract', () => {
       })
 
       it('raises an error', async () => {
-        await expect(completeRequest(accounts[0]))
-          .to.be.rejectedWith(Error, VM_EXCEPTION_MESSAGE)
+        try {
+          await completeRequest(accounts[0])
+          assert.ok(false)
+        } catch (error) {
+          assert.equal(error.reason, 'At least 65% of contributors should approve the request')
+        }
       })
     })
 
