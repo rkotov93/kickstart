@@ -1,10 +1,11 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
 contract CampaignFactory {
     Campaign[] public campaigns;
 
-    function createCampaign(uint minimum) public {
-        Campaign newCampaign = new Campaign(minimum, msg.sender);
+    function createCampaign(uint minimumContribution) public {
+        Campaign newCampaign = new Campaign(minimumContribution, msg.sender);
         campaigns.push(newCampaign);
     }
 
@@ -35,9 +36,9 @@ contract Campaign {
         _;
     }
 
-    constructor(uint minimum, address creator) {
-        manager = creator;
-        minimumContribution = minimum;
+    constructor(uint _minimumContribution, address _manager) {
+        manager = _manager;
+        minimumContribution = _minimumContribution;
     }
 
     function contribute() payable public {

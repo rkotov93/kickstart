@@ -25,7 +25,7 @@ const input = {
 }
 
 const output = JSON.parse(solc.compile(JSON.stringify(input)))
-console.log(output.errors.map(error => error.formattedMessage))
+if (output.errors) console.log(output.errors.map(error => error.formattedMessage))
 const compiledContracts = output.contracts['Campaign.sol']
 
 for (contract in compiledContracts) {
